@@ -1,6 +1,6 @@
 # Portale del Lab, versione da pubblicare
 
-Il sito che i partecipanti aprono sul loro PC durante l'AI Visibility Lab (29 ottobre 2026). Quattro esercizi, ognuno su una pagina a sé, nessun login. Vale per hotel e per destinazioni (DMO): sulla prima pagina scrivono il nome della struttura o della destinazione e il comune o territorio, poi fanno gli esercizi.
+Il sito che i partecipanti aprono sul loro PC durante l'AI Visibility Lab (29 ottobre 2026). Quattro esercizi, ognuno su una pagina a sé, nessun login. Vale per hotel e per destinazioni (DMO): sulla prima pagina scrivono il nome della struttura o della destinazione e il proprio comune (non la zona), poi fanno gli esercizi.
 
 Sono file statici: niente server, niente database, niente chiavi. Il pannello RankWit e i dati di esempio non ci sono: stanno nella versione di prova, `lab-portale (3)`.
 
@@ -56,7 +56,7 @@ Ogni pagina si apre sempre e nessuna porta alla successiva: il ritmo lo dà chi 
 
 ## Cosa fa il partecipante
 
-1. Apre il link, scrive il nome della struttura o della destinazione e il comune o territorio (una volta sola, poi restano fissi su quel PC).
+1. Apre il link, scrive il nome della struttura o della destinazione e il proprio comune (non la zona) (una volta sola, poi restano fissi su quel PC).
 2. **Esercizio 1:** scrive le domande che gli fanno ospiti e visitatori (le caselle partono vuote; ne bastano anche due) e le sue risposte, copia il testo pronto, lo incolla in ChatGPT, incolla qui la risposta di ChatGPT e scarica il documento FAQ (pagina HTML da mettere sul sito o mandare a chi lo gestisce).
 3. **Esercizi 2 e 4:** copia la domanda in cima, la incolla in ChatGPT, Modalità AI di Google e Gemini, incolla la risposta di ogni motore nella sua casella e la valuta.
 4. **Esercizio 3:** sempre aperto, non dipende dall'esercizio 1. In cima ci sono tre domande, vuote, con sotto la risposta del partecipante; le caselle vuote si riempiono con le domande che ha già scritto nell'esercizio 1. Si cambiano quando si vuole. Le scrive lui nei tre motori, incolla la risposta di ogni motore nella sua casella e la valuta.

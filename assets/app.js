@@ -288,7 +288,7 @@
         <p class="muted" style="margin-top:8px">Lo scrivi una volta sola: resta su questo computer per tutti gli esercizi.</p>
         <form id="name-form" class="stack" novalidate style="margin-top:20px">
           <label class="field"><span>Nome della struttura o della destinazione</span><input type="text" id="f-name" autocomplete="organization" placeholder="Per esempio: Hotel Il Glicine, oppure Montagna Pistoiese"></label>
-          <label class="field"><span>Comune o territorio</span><input type="text" id="f-comune"></label>
+          <label class="field"><span>Comune</span><input type="text" id="f-comune" aria-describedby="f-comune-hint"><small id="f-comune-hint">Il tuo comune, non la zona. Per esempio: Abetone Cutigliano</small></label>
           <p class="err" id="name-err" role="alert" hidden></p>
           <div><button class="btn primary" type="submit">Inizia ${ARROW}</button></div>
         </form>
@@ -297,7 +297,7 @@
     $('#name-form').addEventListener('submit', e => {
       e.preventDefault();
       const missing = [];
-      [['#f-name', 'il nome della struttura o della destinazione'], ['#f-comune', 'il comune o il territorio']].forEach(([sel, label]) => {
+      [['#f-name', 'il nome della struttura o della destinazione'], ['#f-comune', 'il comune']].forEach(([sel, label]) => {
         const bad = !$(sel).value.trim();
         $(sel).setAttribute('aria-invalid', bad ? 'true' : 'false');
         if (bad) missing.push(label);
@@ -649,7 +649,7 @@
       ${exHead(ex)}
       ${copyBox(text)}
       ${tabsNote(2)}
-      <p class="muted small" style="margin-top:12px">Per ogni motore incolla qui la risposta e segna se compare ${esc(prop.comune)}. Ognuno riceve risposte un po’ diverse: è normale.</p>
+      <p class="muted small" style="margin-top:12px">${/\{comune\}/.test(tq.text) ? `Per ogni motore incolla qui la risposta e segna se compare ${esc(prop.comune)}.` : `La domanda parla di tutta la zona: conta se l’AI nomina proprio il tuo comune, <strong>${esc(prop.comune)}</strong>. Per ogni motore incolla qui la risposta e segna se compare.`} Ognuno riceve risposte un po’ diverse: è normale.</p>
       <div class="grid-3" style="margin-top:16px">${opts.map(tabCard).join('')}</div>
       <label class="field section"><span>Cosa manca, secondo te?</span>
         <textarea id="t-note" rows="3" placeholder="Un luogo, una festa, un’esperienza o una fonte che l’AI non usa">${esc(S.getSub(pid, 'territorio', tq.id, 'cosa_manca'))}</textarea></label>
