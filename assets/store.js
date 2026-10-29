@@ -150,7 +150,8 @@
       current_step: 'faq', progress: { faq: false, territorio: false, hotel: false, posizionamento: false }
     });
     D.FAQ_DEFAULT.forEach((f, i) => {
-      insert('questions', { id: uid('Q-'), event_id: ev.id, exercise_id: 'faq', participant_id: p.id, key: f.key, text: f.text, source: 'sistema', position: i, created_at: created });
+      // Le domande partono vuote: le scrive il partecipante.
+      insert('questions', { id: uid('Q-'), event_id: ev.id, exercise_id: 'faq', participant_id: p.id, key: f.key, text: '', source: 'sistema', position: i, created_at: created });
     });
     return p;
   }
@@ -244,7 +245,7 @@
 
   // ---------- domande composte ----------
   function hotelPrompt(prop, qs) {
-    return 'Scritta dal partecipante. Domande: ' + qs.map((q, i) => (i + 1) + ') ' + q.text.trim()).join(' ');
+    return 'Scritta dal partecipante. Domande: ' + qs.map((q, i) => (i + 1) + ') ' + (q.text.trim() || '(da scrivere)')).join(' ');
   }
   // Esercizio 3: una riga «sistema» tiene il testo delle tre domande (è la domanda
   // delle schede motore); le tre domande del partecipante sono righe «partecipante».
@@ -267,22 +268,23 @@
   function selectedHotelQs(pid) {
     return filter('questions', q => q.participant_id === pid && q.exercise_id === 'hotel' && q.source === 'partecipante').sort((a, b) => a.position - b.position);
   }
-  // L'esercizio 3 non dipende dall'1: tre domande sue, precompilate con le prime
-  // risposte delle FAQ se ci sono, altrimenti con domande di partenza. Sempre modificabili.
+  // L'esercizio 3 non dipende dall'1: tre domande del partecipante, vuote. Le caselle
+  // ancora vuote si riempiono con le domande (e risposte) che ha scritto nell'1.
   function ensureHotelSetup(ev, p, prop) {
     let own = selectedHotelQs(p.id);
-    if (own.length < 3) {
-      const used = new Set(own.map(q => q.text.trim()));
-      const pool = faqQuestions(p.id)
-        .filter(q => q.text.trim() && getSub(p.id, 'faq', q.id, 'risposta').trim())
-        .map(q => ({ text: q.text.trim(), a: getSub(p.id, 'faq', q.id, 'risposta').trim() }));
-      D.FAQ_DEFAULT.forEach(f => { if (!pool.some(x => x.text === f.text)) pool.push({ text: f.text, a: '' }); });
-      pool.filter(x => !used.has(x.text)).slice(0, 3 - own.length).forEach((x, i) => {
-        const q = insert('questions', { id: uid('Q-'), event_id: ev.id, exercise_id: 'hotel', participant_id: p.id, key: null, text: x.text, source: 'partecipante', position: own.length + i, created_at: nowIso() });
-        if (x.a) setSub(p, 'hotel', q.id, 'risposta', x.a);
-      });
-      own = selectedHotelQs(p.id);
+    for (let i = own.length; i < 3; i++) {
+      insert('questions', { id: uid('Q-'), event_id: ev.id, exercise_id: 'hotel', participant_id: p.id, key: null, text: '', source: 'partecipante', position: i, created_at: nowIso() });
     }
+    own = selectedHotelQs(p.id);
+    const used = new Set(own.map(q => q.text.trim()).filter(Boolean));
+    const pool = faqQuestions(p.id).filter(q => q.text.trim() && !used.has(q.text.trim()));
+    own.forEach(q => {
+      if (q.text.trim() || getSub(p.id, 'hotel', q.id, 'risposta').trim() || !pool.length) return;
+      const f = pool.shift();
+      q.text = f.text.trim();
+      const a = getSub(p.id, 'faq', f.id, 'risposta').trim();
+      if (a) setSub(p, 'hotel', q.id, 'risposta', a);
+    });
     return setHotelQuestion(ev, p, hotelPrompt(prop, own));
   }
 
@@ -322,7 +324,7 @@
       // Esercizio 1: finito quando c'è il testo delle FAQ scritto da ChatGPT.
       faq: getSub(p.id, 'faq', null, 'faq_chatgpt').trim() !== '',
       territorio: sent('territorio') && done('territorio', (q, r, m) => pasted(r) && getSub(p.id, 'territorio', q.id, 'citato_' + m) !== ''),
-      hotel: sent('hotel') && sel.length > 0 && done('hotel', (q, r) => pasted(r) && sel.every(x => { const e = getEval(p.id, r.id, x.id); return e && e.rating; })),
+      hotel: sent('hotel') && sel.length > 0 && sel.every(x => x.text.trim()) && done('hotel', (q, r) => pasted(r) && sel.every(x => { const e = getEval(p.id, r.id, x.id); return e && e.rating; })),
       posizionamento: sent('posizionamento') && done('posizionamento', (q, r) => pasted(r) && !!getEval(p.id, r.id, null) && !!getEval(p.id, r.id, null).rating)
     };
     return p.progress;

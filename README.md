@@ -57,9 +57,9 @@ Ogni pagina si apre sempre e nessuna porta alla successiva: il ritmo lo dà chi 
 ## Cosa fa il partecipante
 
 1. Apre il link, scrive nome della struttura e comune (una volta sola, poi restano fissi su quel PC).
-2. **Esercizio 1:** scrive le risposte alle domande degli ospiti, copia il testo pronto, lo incolla in ChatGPT, incolla qui la risposta di ChatGPT e scarica il documento FAQ (pagina HTML da mettere sul sito o mandare a chi lo gestisce).
+2. **Esercizio 1:** scrive le domande che gli fanno gli ospiti (le caselle partono vuote) e le sue risposte, copia il testo pronto, lo incolla in ChatGPT, incolla qui la risposta di ChatGPT e scarica il documento FAQ (pagina HTML da mettere sul sito o mandare a chi lo gestisce).
 3. **Esercizi 2 e 4:** copia la domanda in cima, la incolla in ChatGPT, Modalità AI di Google e Gemini, incolla la risposta di ogni motore nella sua casella e la valuta.
-4. **Esercizio 3:** sempre aperto, non dipende dall'esercizio 1. In cima ci sono tre domande con sotto la risposta del partecipante, precompilate con le sue prime risposte delle FAQ se le ha già scritte, altrimenti con domande di partenza; si cambiano quando si vuole. Le scrive lui nei tre motori, incolla la risposta di ogni motore nella sua casella e la valuta.
+4. **Esercizio 3:** sempre aperto, non dipende dall'esercizio 1. In cima ci sono tre domande, vuote, con sotto la risposta del partecipante; le caselle vuote si riempiono con le domande che ha già scritto nell'esercizio 1. Si cambiano quando si vuole. Le scrive lui nei tre motori, incolla la risposta di ogni motore nella sua casella e la valuta.
 5. **Esercizi 2, 3 e 4 si chiudono con «Invia».** Il pulsante controlla che per ogni motore ci siano la risposta incollata e la valutazione (un motore segnato «Non si apre» si salta) e, se manca qualcosa, lo elenca. Poi dice «Inviato. Aspetta le indicazioni in sala». Per ora «Invia» chiude l'esercizio sul PC: l'invio delle risposte a RankWit arriva con la Fase 2.
 
 I motori si aprono in un'altra scheda, senza account. Ogni esercizio con i motori lo dice: non serve accedere né registrarsi, e per tornare al portale basta cliccare la sua scheda.

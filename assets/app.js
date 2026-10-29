@@ -241,6 +241,7 @@
     if (!q) return ['la domanda dell’esercizio'];
     const sel = S.selectedHotelQs(p.id);
     const out = [];
+    if (exId === 'hotel') sel.forEach((x, i) => { if (!x.text.trim()) out.push('scrivi la domanda ' + (i + 1) + ' in cima'); });
     ev.models.forEach(m => {
       const name = D.MODELS[m].short;
       const r = S.runOf({ pid: p.id, ex: exId, qid: q.id, engine: m }, false);
@@ -435,14 +436,14 @@
     const pid = p.id;
     const qs = S.faqQuestions(pid);
     shellP(ev, p, `
-      ${exHead(D.EXERCISES[0], 'Scrivi le domande che ti fanno gli ospiti e, sotto, le tue risposte, come le daresti al telefono. Puoi cambiare le domande. Non scrivere nomi o dati dei tuoi ospiti. Poi, in fondo alla pagina, ti fai scrivere le FAQ da ChatGPT.')}
+      ${exHead(D.EXERCISES[0], 'Scrivi le domande che ti fanno gli ospiti e, sotto, le tue risposte, come le daresti al telefono. Non scrivere nomi o dati dei tuoi ospiti. Poi, in fondo alla pagina, ti fai scrivere le FAQ da ChatGPT.')}
       <p class="counter" id="faq-count" aria-live="polite"></p>
       <div class="faq-list" style="margin-top:12px">
         ${qs.map((q, i) => `
           <div class="faq-item">
             <span class="num" id="n-${q.id}">${String(i + 1).padStart(2, '0')}</span>
             <label class="sr" for="q-${q.id}">Domanda ${i + 1}</label>
-            <input type="text" id="q-${q.id}" data-q="${q.id}" value="${esc(q.text)}">
+            <input type="text" id="q-${q.id}" data-q="${q.id}" value="${esc(q.text)}" placeholder="Scrivi una domanda che ti fanno gli ospiti">
             <label class="sr" for="a-${q.id}">Risposta alla domanda ${i + 1}</label>
             <textarea id="a-${q.id}" data-a="${q.id}" rows="2" placeholder="La tua risposta">${esc(S.getSub(pid, 'faq', q.id, 'risposta'))}</textarea>
           </div>`).join('')}
@@ -668,16 +669,16 @@
     const hq = S.ensureHotelSetup(ev, p, prop);
     S.save();
     const qs3 = S.selectedHotelQs(pid);
-    const label = (q, i) => (i + 1) + '. ' + q.text.trim();
+    const label = (q, i) => (q.text.trim() ? (i + 1) + '. ' + q.text.trim() : 'Domanda ' + (i + 1));
     const rows = qs3.map((q, i) => ({ qid: q.id, label: label(q, i) }));
     const opts = ev.models.map(m => ({ key: 'hotel|' + m, ev, pid, ex: 'hotel', qid: hq.id, engine: m, prompt: hq.text, hint: 'Se il motore non lo sa, scegli «Incompleta».', step1: 'Si apre vuoto in un’altra scheda. Scrivi tu le domande.', rows, options: RATE_HOTEL }));
     shellP(ev, p, `
-      ${exHead(ex, 'Tre domande che un ospite potrebbe fare sulla tua struttura. Puoi cambiarle quando vuoi. Sotto ognuna scrivi la tua risposta: ti serve per capire se l’AI risponde giusto.')}
+      ${exHead(ex, 'Scrivi tre domande che un ospite potrebbe fare sulla tua struttura e, sotto ognuna, la tua risposta: ti serve per capire se l’AI risponde giusto.')}
       <div class="copybox is-write">
         <p class="copy-title">Scrivi tu queste tre domande nei tre motori, come le scriverebbe un ospite. Ricordati di dire il nome della struttura e il comune.</p>
         <div class="q3-list">${qs3.map((q, i) => `
           <div class="q3">
-            <label class="field"><span>Domanda ${i + 1}</span><input type="text" data-h3q="${q.id}" value="${esc(q.text)}"></label>
+            <label class="field"><span>Domanda ${i + 1}</span><input type="text" data-h3q="${q.id}" value="${esc(q.text)}" placeholder="Una domanda che un ospite potrebbe fare"></label>
             <label class="field"><span>La tua risposta</span><textarea rows="2" data-h3a="${q.id}" placeholder="Come risponderesti tu">${esc(S.getSub(pid, 'hotel', q.id, 'risposta'))}</textarea></label>
           </div>`).join('')}</div>
       </div>
