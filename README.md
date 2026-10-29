@@ -4,6 +4,20 @@ Il sito che i partecipanti aprono sul loro PC durante l'AI Visibility Lab (29 ot
 
 Sono file statici: niente server, niente database, niente chiavi. Il pannello RankWit e i dati di esempio non ci sono: stanno nella versione di prova, `lab-portale (3)`.
 
+## Online
+
+**https://gherybeans-rankwit.github.io/esercizi-visibility-lab/**
+
+Repository pubblico `gherybeans-rankwit/esercizi-visibility-lab` (account personale gherybeans-rankwit), pubblicato con GitHub Pages dal ramo `main`.
+
+Per aggiornarlo, per esempio dopo aver cambiato `evento.js`, dalla cartella `lab-portale (4)`:
+
+```bash
+gh auth switch -h github.com -u gherybeans-rankwit && git commit -am "Lab di <zona>" && git -c credential.helper= -c 'credential.helper=!gh auth git-credential' push
+```
+
+Il sito si aggiorna da solo in uno o due minuti.
+
 ## Prima di ogni Lab
 
 Aprire `evento.js` e cambiare due righe:
