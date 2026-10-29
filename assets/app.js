@@ -352,7 +352,7 @@
     return `
       <div class="section"><h2 style="margin-bottom:14px">Hai finito gli esercizi</h2>
       <div class="tiles">
-        <div class="tile"><span class="label">FAQ</span><p class="big">${nFaq}/${qs.length}</p><p>domande con una risposta</p></div>
+        <div class="tile"><span class="label">FAQ</span><p class="big">${nFaq}</p><p>${nFaq === 1 ? 'domanda' : 'domande'} con una risposta</p></div>
         <div class="tile"><span class="label">Territorio</span><p class="big">${cited}/${usable.length}</p><p>motori citano ${esc(prop.comune)}</p></div>
         <div class="tile"><span class="label">Struttura</span><p class="big">${h.filter(e => e.rating === 'corretta').length}/${h.length}</p><p>risposte corrette sulla tua struttura</p></div>
         <div class="tile"><span class="label">Posizionamento</span><p class="big">${pos.filter(e => e.rating === 'si').length}/${pos.length}</p><p>descrizioni in cui ti ritrovi</p></div>
@@ -436,7 +436,7 @@
     const pid = p.id;
     const qs = S.faqQuestions(pid);
     shellP(ev, p, `
-      ${exHead(D.EXERCISES[0], 'Scrivi le domande che ti fanno gli ospiti e, sotto, le tue risposte, come le daresti al telefono. Non scrivere nomi o dati dei tuoi ospiti. Poi, in fondo alla pagina, ti fai scrivere le FAQ da ChatGPT.')}
+      ${exHead(D.EXERCISES[0], 'Scrivi le domande che ti fanno gli ospiti e, sotto, le tue risposte, come le daresti al telefono. Non serve riempirle tutte: anche due vanno benissimo. Non scrivere nomi o dati dei tuoi ospiti. Poi, in fondo alla pagina, ti fai scrivere le FAQ da ChatGPT.')}
       <p class="counter" id="faq-count" aria-live="polite"></p>
       <div class="faq-list" style="margin-top:12px">
         ${qs.map((q, i) => `
@@ -474,11 +474,12 @@
     const full = q => !!(q.text.trim() && S.getSub(pid, 'faq', q.id, 'risposta').trim());
     function refresh() {
       const n = qs.filter(full).length;
-      $('#faq-count').textContent = n + ' di ' + qs.length + ' risposte';
+      // Nessun minimo: anche una o due domande vanno bene.
+      $('#faq-count').textContent = n === 1 ? '1 domanda con risposta' : n + ' domande con risposta';
       qs.forEach(q => $('#n-' + q.id).classList.toggle('is-done', full(q)));
       $('#faq-prompt').textContent = n ? faqPrompt(prop, faqItems(pid)) : 'Il testo compare qui quando scrivi la prima risposta.';
       $('#faq-copy').disabled = n === 0;
-      $('#faq-hint').textContent = n === 0 ? '' : n < qs.length ? 'Entrano le ' + n + ' domande con una risposta.' : '';
+      $('#faq-hint').textContent = n === 0 ? '' : n === 1 ? 'Nel testo entra la domanda con la risposta.' : 'Nel testo entrano le ' + n + ' domande con una risposta.';
       $('#faq-dl').disabled = !S.getSub(pid, 'faq', null, 'faq_chatgpt').trim();
     }
     main.addEventListener('input', e => {

@@ -4,6 +4,8 @@
 @font-face { font-family: "DM Mono"; font-style: normal; font-weight: 500; font-display: swap; src: url("fonts/dm-mono-500.woff2") format("woff2"); }
 
 :root {
+  /* Solo tema chiaro: «only light» impedisce ai browser di scurire la pagina da soli. */
+  color-scheme: only light;
   --page: #f7f6fe;
   --surface: #ffffff;
   --ink: #09041d;
@@ -31,7 +33,7 @@
 }
 
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; background: var(--page); }
 body { margin: 0; background: var(--page); color: var(--ink); font: 400 16.5px/1.55 var(--body); }
 img, svg { display: block; }
 a { color: var(--accent-text); text-underline-offset: 3px; }
@@ -265,7 +267,7 @@ table.t td.num, table.t th.num { text-align: right; font-variant-numeric: tabula
 .export-list .item { display: grid; grid-template-columns: 1fr auto auto; gap: 16px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; }
 .export-list .item p { font-size: 14px; color: var(--muted); margin-top: 2px; }
 .export-list .item.main { border-color: #cfcdfb; background: #fbfbff; }
-.toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 12px 18px; border-radius: 10px; font-size: 15px; z-index: 60; box-shadow: var(--shadow); max-width: calc(100% - 32px); }
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--surface); color: var(--ink); border: 1px solid var(--line-2); font-weight: 600; padding: 12px 18px; border-radius: 10px; font-size: 15px; z-index: 60; box-shadow: var(--shadow); max-width: calc(100% - 32px); }
 .empty { text-align: center; padding: 48px 16px; color: var(--muted); }
 .consent { border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; background: #fcfcff; }
 .consent details { margin-top: 10px; font-size: 14.5px; color: var(--ink-2); }
