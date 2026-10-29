@@ -434,7 +434,6 @@
   function viewFaq(ev, p, prop) {
     const pid = p.id;
     const qs = S.faqQuestions(pid);
-    const usedIn3 = new Set(S.hotelQuestion(ev, p) ? S.selectedHotelQs(pid).map(q => q.id) : []);
     shellP(ev, p, `
       ${exHead(D.EXERCISES[0], 'Scrivi le domande che ti fanno gli ospiti e, sotto, le tue risposte, come le daresti al telefono. Puoi cambiare le domande. Non scrivere nomi o dati dei tuoi ospiti. Poi, in fondo alla pagina, ti fai scrivere le FAQ da ChatGPT.')}
       <p class="counter" id="faq-count" aria-live="polite"></p>
@@ -443,7 +442,7 @@
           <div class="faq-item">
             <span class="num" id="n-${q.id}">${String(i + 1).padStart(2, '0')}</span>
             <label class="sr" for="q-${q.id}">Domanda ${i + 1}</label>
-            <input type="text" id="q-${q.id}" data-q="${q.id}" value="${esc(q.text)}" ${usedIn3.has(q.id) ? 'readonly title="Usata nell’esercizio 3: non si cambia più"' : ''}>
+            <input type="text" id="q-${q.id}" data-q="${q.id}" value="${esc(q.text)}">
             <label class="sr" for="a-${q.id}">Risposta alla domanda ${i + 1}</label>
             <textarea id="a-${q.id}" data-a="${q.id}" rows="2" placeholder="La tua risposta">${esc(S.getSub(pid, 'faq', q.id, 'risposta'))}</textarea>
           </div>`).join('')}
@@ -660,59 +659,27 @@
   }
 
   // ---------- 3. struttura ----------
-  // Qui la domanda la scrive il partecipante: nessun testo da copiare.
+  // Sempre aperto: tre domande del partecipante, modificabili in ogni momento, che
+  // scrive lui nei motori. Non serve aver fatto l'esercizio 1.
   function viewHotel(ev, p, prop) {
     const pid = p.id;
     const ex = D.EXERCISES[2];
     cards = new Map();
-    const qs = S.faqQuestions(pid);
-    const answer = q => S.getSub(pid, 'faq', q.id, 'risposta').trim();
-    const answered = qs.filter(q => q.text.trim() && answer(q));
-    const selected = S.selectedHotelQs(pid);
-    const hq = S.hotelQuestion(ev, p);
-
-    if (!hq) {
-      if (answered.length < 3) {
-        shellP(ev, p, exHead(ex) + `<p class="note">Ti servono almeno tre risposte nell’esercizio 1: ora ne hai ${answered.length}. Completale e torna qui.</p>
-          <p style="margin-top:16px"><a class="btn primary" href="${exLink(ev, 1)}">Vai all’esercizio 1</a></p>`);
-        return;
-      }
-      const pre = selected.length === 3 ? selected : answered.slice(0, 3);
-      shellP(ev, p, exHead(ex, 'Scegli tre domande delle tue FAQ. Poi le farai tu ai motori, come le scriverebbe un ospite.') + `
-        <fieldset style="border:0;padding:0;margin:0">
-          <legend class="label" style="margin-bottom:12px">Scegli tre domande <span id="pick-count"></span></legend>
-          <div class="pick">${answered.map(q => `<label><input type="checkbox" value="${q.id}" ${pre.indexOf(q) >= 0 ? 'checked' : ''}><span><strong>${esc(q.text)}</strong><span class="a">${esc(answer(q))}</span></span></label>`).join('')}</div>
-        </fieldset>
-        <div class="row" style="margin-top:20px"><button class="btn primary" type="button" id="ask">Conferma le tre domande</button>
-          <span class="muted small">Dopo la conferma restano queste, così le risposte si possono confrontare.</span></div>`);
-      const boxes = $$('.pick input');
-      const sync = () => {
-        const n = boxes.filter(b => b.checked).length;
-        boxes.forEach(b => { b.disabled = !b.checked && n >= 3; });
-        $('#pick-count').textContent = '(' + n + ' di 3)';
-        $('#ask').disabled = n !== 3;
-      };
-      boxes.forEach(b => b.addEventListener('change', sync));
-      sync();
-      $('#ask').addEventListener('click', () => {
-        const cur = S.byId('participants', pid);
-        if (S.hotelQuestion(ev, cur)) { render(); return; }
-        qs.forEach(q => S.setSub(cur, 'hotel', q.id, 'selezionata', boxes.some(b => b.checked && b.value === q.id) ? 'si' : ''));
-        S.setSub(cur, 'hotel', null, 'inviata', new Date().toISOString());
-        S.setHotelQuestion(ev, cur, S.hotelPrompt(prop, S.selectedHotelQs(pid)));
-        S.save();
-        render();
-      });
-      return;
-    }
-
-    const rows = selected.map((q, i) => ({ qid: q.id, label: (i + 1) + '. ' + q.text.trim() }));
+    const hq = S.ensureHotelSetup(ev, p, prop);
+    S.save();
+    const qs3 = S.selectedHotelQs(pid);
+    const label = (q, i) => (i + 1) + '. ' + q.text.trim();
+    const rows = qs3.map((q, i) => ({ qid: q.id, label: label(q, i) }));
     const opts = ev.models.map(m => ({ key: 'hotel|' + m, ev, pid, ex: 'hotel', qid: hq.id, engine: m, prompt: hq.text, hint: 'Se il motore non lo sa, scegli «Incompleta».', step1: 'Si apre vuoto in un’altra scheda. Scrivi tu le domande.', rows, options: RATE_HOTEL }));
     shellP(ev, p, `
-      ${exHead(ex)}
+      ${exHead(ex, 'Tre domande che un ospite potrebbe fare sulla tua struttura. Puoi cambiarle quando vuoi. Sotto ognuna scrivi la tua risposta: ti serve per capire se l’AI risponde giusto.')}
       <div class="copybox is-write">
         <p class="copy-title">Scrivi tu queste tre domande nei tre motori, come le scriverebbe un ospite. Ricordati di dire il nome della struttura e il comune.</p>
-        <ol class="mine-list">${selected.map(q => `<li><strong>${esc(q.text)}</strong><span class="muted">La tua risposta: ${esc(answer(q)) || 'nessuna'}</span></li>`).join('')}</ol>
+        <div class="q3-list">${qs3.map((q, i) => `
+          <div class="q3">
+            <label class="field"><span>Domanda ${i + 1}</span><input type="text" data-h3q="${q.id}" value="${esc(q.text)}"></label>
+            <label class="field"><span>La tua risposta</span><textarea rows="2" data-h3a="${q.id}" placeholder="Come risponderesti tu">${esc(S.getSub(pid, 'hotel', q.id, 'risposta'))}</textarea></label>
+          </div>`).join('')}</div>
       </div>
       ${tabsNote(3)}
       <p class="muted small" style="margin-top:12px">Puoi farle in un messaggio solo o una alla volta. Incolla qui tutto quello che rispondono e confronta con le tue risposte.</p>
@@ -723,6 +690,21 @@
     bindTabCards(ev, pid, 'hotel');
     bindSend(ev, pid, 'hotel');
     $('#h-note').addEventListener('input', e => { S.setSub(S.byId('participants', pid), 'hotel', null, 'nota', e.target.value); queueSave(); });
+    $('.q3-list').addEventListener('input', e => {
+      const t = e.target;
+      const cur = S.byId('participants', pid);
+      if (t.dataset.h3a) { S.setSub(cur, 'hotel', t.dataset.h3a, 'risposta', t.value); queueSave(); return; }
+      if (!t.dataset.h3q) return;
+      // Domanda cambiata: si aggiornano il testo per i motori e le etichette delle valutazioni.
+      S.update('questions', t.dataset.h3q, { text: t.value });
+      const now = S.selectedHotelQs(pid);
+      const sys = S.setHotelQuestion(ev, cur, S.hotelPrompt(prop, now));
+      ev.models.forEach(m => { const r = S.runOf({ pid, ex: 'hotel', qid: sys.id, engine: m }, false); if (r) r.prompt = sys.text; });
+      const idx = now.findIndex(q => q.id === t.dataset.h3q);
+      cards.forEach(o => { if (o.ex === 'hotel' && o.rows[idx]) { o.rows[idx].label = label(now[idx], idx); o.prompt = sys.text; } });
+      $$('[data-card^="hotel|"]').forEach(card => { const ask = card.querySelectorAll('.rate-row .ask')[idx]; if (ask) ask.textContent = label(now[idx], idx); });
+      queueSave();
+    });
   }
 
   // ---------- 4. posizionamento ----------

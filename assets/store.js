@@ -244,10 +244,12 @@
 
   // ---------- domande composte ----------
   function hotelPrompt(prop, qs) {
-    return 'Scritta dal partecipante. Domande scelte: ' + qs.map((q, i) => (i + 1) + ') ' + q.text.trim()).join(' ');
+    return 'Scritta dal partecipante. Domande: ' + qs.map((q, i) => (i + 1) + ') ' + q.text.trim()).join(' ');
   }
+  // Esercizio 3: una riga «sistema» tiene il testo delle tre domande (è la domanda
+  // delle schede motore); le tre domande del partecipante sono righe «partecipante».
   function hotelQuestion(ev, p) {
-    return find('questions', x => x.participant_id === p.id && x.exercise_id === 'hotel');
+    return find('questions', x => x.participant_id === p.id && x.exercise_id === 'hotel' && x.source === 'sistema');
   }
   function setHotelQuestion(ev, p, text, at) {
     let q = hotelQuestion(ev, p);
@@ -263,7 +265,25 @@
     return q;
   }
   function selectedHotelQs(pid) {
-    return faqQuestions(pid).filter(q => getSub(pid, 'hotel', q.id, 'selezionata') === 'si');
+    return filter('questions', q => q.participant_id === pid && q.exercise_id === 'hotel' && q.source === 'partecipante').sort((a, b) => a.position - b.position);
+  }
+  // L'esercizio 3 non dipende dall'1: tre domande sue, precompilate con le prime
+  // risposte delle FAQ se ci sono, altrimenti con domande di partenza. Sempre modificabili.
+  function ensureHotelSetup(ev, p, prop) {
+    let own = selectedHotelQs(p.id);
+    if (own.length < 3) {
+      const used = new Set(own.map(q => q.text.trim()));
+      const pool = faqQuestions(p.id)
+        .filter(q => q.text.trim() && getSub(p.id, 'faq', q.id, 'risposta').trim())
+        .map(q => ({ text: q.text.trim(), a: getSub(p.id, 'faq', q.id, 'risposta').trim() }));
+      D.FAQ_DEFAULT.forEach(f => { if (!pool.some(x => x.text === f.text)) pool.push({ text: f.text, a: '' }); });
+      pool.filter(x => !used.has(x.text)).slice(0, 3 - own.length).forEach((x, i) => {
+        const q = insert('questions', { id: uid('Q-'), event_id: ev.id, exercise_id: 'hotel', participant_id: p.id, key: null, text: x.text, source: 'partecipante', position: own.length + i, created_at: nowIso() });
+        if (x.a) setSub(p, 'hotel', q.id, 'risposta', x.a);
+      });
+      own = selectedHotelQs(p.id);
+    }
+    return setHotelQuestion(ev, p, hotelPrompt(prop, own));
   }
 
   // ---------- avanzamento ----------
@@ -461,7 +481,7 @@
     onChange: fn => { listeners.add(fn); return () => listeners.delete(fn); },
     eventByCode, configEvent, territoryQuestion, createEvent, createParticipant,
     getSub, setSub, getEval, setEval, faqQuestions, runOf, openRun, pasteRun, setUnavailable, responseFor,
-    aliases, mentions, hotelPrompt, hotelQuestion, setHotelQuestion, positioningQuestion, selectedHotelQs,
+    aliases, mentions, hotelPrompt, hotelQuestion, setHotelQuestion, positioningQuestion, selectedHotelQs, ensureHotelSetup,
     computeProgress, allOff, toCSV, session, admin
   };
 })();
