@@ -197,7 +197,7 @@
         <div class="bar-in">${brand(homeLink(ev))}
           <div class="bar-event"><span class="mono">AI Visibility Lab${EX_N ? ' · Esercizio ' + EX_N + ' di 4' : ''}</span><strong>${esc(ev.name)}</strong></div>
           <div class="bar-right">${p ? `
-            <span class="who-chip" title="La tua struttura">${esc((S.byId('properties', p.property_id) || {}).name || '')}</span>
+            <span class="who-chip" title="Chi rappresenti">${esc((S.byId('properties', p.property_id) || {}).name || '')}</span>
             <span class="muted small who-town">${esc((S.byId('properties', p.property_id) || {}).comune || '')}</span>
             <span class="save" id="save" role="status" aria-live="polite"><span class="save-text">Salvato</span></span>` : ''}
           </div>
@@ -284,11 +284,11 @@
     shellP(ev, null, `
       <div class="card narrow name-card">
         <span class="label">Prima di iniziare</span>
-        <h1>La tua struttura</h1>
+        <h1>La tua struttura o destinazione</h1>
         <p class="muted" style="margin-top:8px">Lo scrivi una volta sola: resta su questo computer per tutti gli esercizi.</p>
         <form id="name-form" class="stack" novalidate style="margin-top:20px">
-          <label class="field"><span>Nome della struttura</span><input type="text" id="f-name" autocomplete="organization"></label>
-          <label class="field"><span>Comune</span><input type="text" id="f-comune"></label>
+          <label class="field"><span>Nome della struttura o della destinazione</span><input type="text" id="f-name" autocomplete="organization" placeholder="Per esempio: Hotel Il Glicine, oppure Montagna Pistoiese"></label>
+          <label class="field"><span>Comune o territorio</span><input type="text" id="f-comune"></label>
           <p class="err" id="name-err" role="alert" hidden></p>
           <div><button class="btn primary" type="submit">Inizia ${ARROW}</button></div>
         </form>
@@ -297,7 +297,7 @@
     $('#name-form').addEventListener('submit', e => {
       e.preventDefault();
       const missing = [];
-      [['#f-name', 'il nome della struttura'], ['#f-comune', 'il comune']].forEach(([sel, label]) => {
+      [['#f-name', 'il nome della struttura o della destinazione'], ['#f-comune', 'il comune o il territorio']].forEach(([sel, label]) => {
         const bad = !$(sel).value.trim();
         $(sel).setAttribute('aria-invalid', bad ? 'true' : 'false');
         if (bad) missing.push(label);
@@ -354,7 +354,7 @@
       <div class="tiles">
         <div class="tile"><span class="label">FAQ</span><p class="big">${nFaq}</p><p>${nFaq === 1 ? 'domanda' : 'domande'} con una risposta</p></div>
         <div class="tile"><span class="label">Territorio</span><p class="big">${cited}/${usable.length}</p><p>motori citano ${esc(prop.comune)}</p></div>
-        <div class="tile"><span class="label">Struttura</span><p class="big">${h.filter(e => e.rating === 'corretta').length}/${h.length}</p><p>risposte corrette sulla tua struttura</p></div>
+        <div class="tile"><span class="label">Su di te</span><p class="big">${h.filter(e => e.rating === 'corretta').length}/${h.length}</p><p>risposte corrette su di te</p></div>
         <div class="tile"><span class="label">Posizionamento</span><p class="big">${pos.filter(e => e.rating === 'si').length}/${pos.length}</p><p>descrizioni in cui ti ritrovi</p></div>
       </div></div>
       ${frase ? `<div class="section"><p class="label" style="margin-bottom:10px">La tua frase</p><blockquote class="quote">${esc(frase)}</blockquote></div>` : ''}
@@ -384,8 +384,8 @@
     return S.faqQuestions(pid).map(q => ({ q: q.text.trim(), a: S.getSub(pid, 'faq', q.id, 'risposta').trim() })).filter(x => x.q && x.a);
   }
   function faqPrompt(prop, items) {
-    return 'Gestisco ' + prop.name + ', a ' + prop.comune + '. Qui sotto trovi le domande che mi fanno gli ospiti, con le mie risposte.\n' +
-      'Riscrivile come una pagina «Domande frequenti» per il mio sito, in italiano: domande chiare, risposte brevi e precise. Non aggiungere informazioni che non ho scritto.\n' +
+    return 'Mi occupo di ' + S.nameWithPlace(prop) + '. Qui sotto trovi le domande che ci fanno ospiti e visitatori, con le nostre risposte.\n' +
+      'Riscrivile come una pagina «Domande frequenti» per il nostro sito, in italiano: domande chiare, risposte brevi e precise. Non aggiungere informazioni che non abbiamo scritto.\n' +
       'In fondo, a parte, aggiungi il codice JSON-LD di tipo FAQPage da dare a chi gestisce il sito.\n\n' +
       items.map((x, i) => (i + 1) + '. Domanda: ' + x.q + '\n   Risposta: ' + x.a).join('\n');
   }
@@ -436,14 +436,14 @@
     const pid = p.id;
     const qs = S.faqQuestions(pid);
     shellP(ev, p, `
-      ${exHead(D.EXERCISES[0], 'Scrivi le domande che ti fanno gli ospiti e, sotto, le tue risposte, come le daresti al telefono. Non serve riempirle tutte: anche due vanno benissimo. Non scrivere nomi o dati dei tuoi ospiti. Poi, in fondo alla pagina, ti fai scrivere le FAQ da ChatGPT.')}
+      ${exHead(D.EXERCISES[0], 'Scrivi le domande che ti fanno ospiti e visitatori e, sotto, le tue risposte, come le daresti al telefono o allo sportello. Non serve riempirle tutte: anche due vanno benissimo. Non scrivere nomi o dati di persone. Poi, in fondo alla pagina, ti fai scrivere le FAQ da ChatGPT.')}
       <p class="counter" id="faq-count" aria-live="polite"></p>
       <div class="faq-list" style="margin-top:12px">
         ${qs.map((q, i) => `
           <div class="faq-item">
             <span class="num" id="n-${q.id}">${String(i + 1).padStart(2, '0')}</span>
             <label class="sr" for="q-${q.id}">Domanda ${i + 1}</label>
-            <input type="text" id="q-${q.id}" data-q="${q.id}" value="${esc(q.text)}" placeholder="Scrivi una domanda che ti fanno gli ospiti">
+            <input type="text" id="q-${q.id}" data-q="${q.id}" value="${esc(q.text)}" placeholder="Scrivi una domanda che ti fanno ospiti o visitatori">
             <label class="sr" for="a-${q.id}">Risposta alla domanda ${i + 1}</label>
             <textarea id="a-${q.id}" data-a="${q.id}" rows="2" placeholder="La tua risposta">${esc(S.getSub(pid, 'faq', q.id, 'risposta'))}</textarea>
           </div>`).join('')}
@@ -533,7 +533,7 @@
     const id = 'c' + S.hash(o.key);
     let rates = '';
     if (o.cite) {
-      rates = `<div class="rate-row"><span class="ask" id="${id}-cit-l">Il tuo comune è citato?</span>${seg(id + '-cit', [['si', 'Sì'], ['no', 'No']], S.getSub(o.pid, 'territorio', o.qid, 'citato_' + o.engine), `data-cite-key="${k}"`)}</div>`;
+      rates = `<div class="rate-row"><span class="ask" id="${id}-cit-l">Compare ${esc(o.comune)}?</span>${seg(id + '-cit', [['si', 'Sì'], ['no', 'No']], S.getSub(o.pid, 'territorio', o.qid, 'citato_' + o.engine), `data-cite-key="${k}"`)}</div>`;
     } else {
       rates = o.rows.map((row, i) => {
         const e = run ? S.getEval(o.pid, run.id, row.qid) : null;
@@ -649,7 +649,7 @@
       ${exHead(ex)}
       ${copyBox(text)}
       ${tabsNote(2)}
-      <p class="muted small" style="margin-top:12px">Per ogni motore incolla qui la risposta e segna se compare il tuo comune, ${esc(prop.comune)}. Ognuno riceve risposte un po’ diverse: è normale.</p>
+      <p class="muted small" style="margin-top:12px">Per ogni motore incolla qui la risposta e segna se compare ${esc(prop.comune)}. Ognuno riceve risposte un po’ diverse: è normale.</p>
       <div class="grid-3" style="margin-top:16px">${opts.map(tabCard).join('')}</div>
       <label class="field section"><span>Cosa manca, secondo te?</span>
         <textarea id="t-note" rows="3" placeholder="Un luogo, una festa, un’esperienza o una fonte che l’AI non usa">${esc(S.getSub(pid, 'territorio', tq.id, 'cosa_manca'))}</textarea></label>
@@ -674,12 +674,12 @@
     const rows = qs3.map((q, i) => ({ qid: q.id, label: label(q, i) }));
     const opts = ev.models.map(m => ({ key: 'hotel|' + m, ev, pid, ex: 'hotel', qid: hq.id, engine: m, prompt: hq.text, hint: 'Se il motore non lo sa, scegli «Incompleta».', step1: 'Si apre vuoto in un’altra scheda. Scrivi tu le domande.', rows, options: RATE_HOTEL }));
     shellP(ev, p, `
-      ${exHead(ex, 'Scrivi tre domande che un ospite potrebbe fare sulla tua struttura e, sotto ognuna, la tua risposta: ti serve per capire se l’AI risponde giusto.')}
+      ${exHead(ex, 'Scrivi tre domande che un viaggiatore potrebbe fare su di te e, sotto ognuna, la tua risposta: ti serve per capire se l’AI risponde giusto.')}
       <div class="copybox is-write">
-        <p class="copy-title">Scrivi tu queste tre domande nei tre motori, come le scriverebbe un ospite. Ricordati di dire il nome della struttura e il comune.</p>
+        <p class="copy-title">Scrivi tu queste tre domande nei tre motori, come le scriverebbe un viaggiatore. Ricordati di scrivere il nome della struttura o della destinazione.</p>
         <div class="q3-list">${qs3.map((q, i) => `
           <div class="q3">
-            <label class="field"><span>Domanda ${i + 1}</span><input type="text" data-h3q="${q.id}" value="${esc(q.text)}" placeholder="Una domanda che un ospite potrebbe fare"></label>
+            <label class="field"><span>Domanda ${i + 1}</span><input type="text" data-h3q="${q.id}" value="${esc(q.text)}" placeholder="Una domanda che un viaggiatore potrebbe fare"></label>
             <label class="field"><span>La tua risposta</span><textarea rows="2" data-h3a="${q.id}" placeholder="Come risponderesti tu">${esc(S.getSub(pid, 'hotel', q.id, 'risposta'))}</textarea></label>
           </div>`).join('')}</div>
       </div>
@@ -724,7 +724,7 @@
       <div class="grid-3" style="margin-top:20px">${opts.map(tabCard).join('')}</div>
       <label class="field section"><span>In una frase: a chi vorresti che l’AI ti consigliasse?</span>
         <textarea id="pos-frase" rows="2" placeholder="Per esempio: coppie che camminano e cercano cucina di casa, da aprile a ottobre">${esc(S.getSub(pid, 'posizionamento', q.id, 'frase'))}</textarea>
-        <small>Ti serve per scrivere la descrizione del sito e delle schede.</small></label>
+        <small>Ti serve per scrivere la descrizione del sito e dei profili online.</small></label>
       ${sendBox(p, 'posizionamento')}`);
     bindTabCards(ev, pid, 'posizionamento');
     bindSend(ev, pid, 'posizionamento');

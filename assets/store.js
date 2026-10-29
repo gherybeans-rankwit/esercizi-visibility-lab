@@ -258,10 +258,18 @@
     else q = insert('questions', { id: uid('Q-'), event_id: ev.id, exercise_id: 'hotel', participant_id: p.id, key: null, text, source: 'sistema', position: 0, created_at: at || nowIso() });
     return q;
   }
+  // «Nome (territorio)», senza ripetere il territorio quando coincide con il nome
+  // (una destinazione come «Montagna Pistoiese»). Vale per hotel e destinazioni.
+  function nameWithPlace(prop) {
+    const n = (prop.name || '').trim();
+    const c = (prop.comune || '').trim();
+    if (!c || n.toLowerCase().includes(c.toLowerCase()) || c.toLowerCase().includes(n.toLowerCase())) return n;
+    return n + ' (' + c + ')';
+  }
   function positioningQuestion(ev, p, prop, at) {
     let q = find('questions', x => x.participant_id === p.id && x.exercise_id === 'posizionamento');
     if (!q) {
-      q = insert('questions', { id: uid('Q-'), event_id: ev.id, exercise_id: 'posizionamento', participant_id: p.id, key: null, text: 'A che tipo di viaggiatore consiglieresti ' + prop.name + ' a ' + prop.comune + '? Rispondi in poche righe e spiega perché.', source: 'sistema', position: 0, created_at: at || nowIso() });
+      q = insert('questions', { id: uid('Q-'), event_id: ev.id, exercise_id: 'posizionamento', participant_id: p.id, key: null, text: 'A che tipo di viaggiatore consiglieresti ' + nameWithPlace(prop) + '? Rispondi in poche righe e spiega perché.', source: 'sistema', position: 0, created_at: at || nowIso() });
     }
     return q;
   }
@@ -483,7 +491,7 @@
     onChange: fn => { listeners.add(fn); return () => listeners.delete(fn); },
     eventByCode, configEvent, territoryQuestion, createEvent, createParticipant,
     getSub, setSub, getEval, setEval, faqQuestions, runOf, openRun, pasteRun, setUnavailable, responseFor,
-    aliases, mentions, hotelPrompt, hotelQuestion, setHotelQuestion, positioningQuestion, selectedHotelQs, ensureHotelSetup,
+    aliases, mentions, nameWithPlace, hotelPrompt, hotelQuestion, setHotelQuestion, positioningQuestion, selectedHotelQs, ensureHotelSetup,
     computeProgress, allOff, toCSV, session, admin
   };
 })();

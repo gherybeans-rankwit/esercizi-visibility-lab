@@ -13,9 +13,9 @@ window.LAB_DATA = {
   },
 
   EXERCISES: [
-    { id: 'faq', n: 1, title: 'FAQ', long: 'Le domande dei tuoi ospiti' },
+    { id: 'faq', n: 1, title: 'FAQ', long: 'Le domande di ospiti e visitatori' },
     { id: 'territorio', n: 2, title: 'Territorio', long: 'Cosa dice l’AI del territorio' },
-    { id: 'hotel', n: 3, title: 'Struttura', long: 'Cosa sa l’AI della tua struttura' },
+    { id: 'hotel', n: 3, title: 'Su di te', long: 'Cosa sa l’AI di te' },
     { id: 'posizionamento', n: 4, title: 'Posizionamento', long: 'A chi ti consiglia l’AI' }
   ],
 
