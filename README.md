@@ -82,9 +82,11 @@ Per rifarlo da zero:
 
 ## Online
 
-Il sito dei partecipanti di oggi è la Fase 1: **https://gherybeans-rankwit.github.io/esercizi-visibility-lab/** (repository `gherybeans-rankwit/esercizi-visibility-lab`, cartella `lab-portale (4)`). Questa cartella ha un suo git, senza collegamento al sito: si pubblica solo dopo le prove.
+Il sito dei partecipanti è **https://gherybeans-rankwit.github.io/esercizi-visibility-lab/** (repository `gherybeans-rankwit/esercizi-visibility-lab`). Dal 30 ottobre 2026 è la Fase 2, pubblicata da questa cartella; `lab-portale (4)` è la Fase 1.
 
-La Fase 2 di prova è su **https://gherybeans-rankwit.github.io/esercizi-visibility-lab-prova/** (repository `gherybeans-rankwit/esercizi-visibility-lab-prova`). Usa lo stesso server online: non va data ai partecipanti.
+Questa cartella ha un suo git, con una storia diversa da quella del sito. Per pubblicare: si clona il sito, si tolgono i file (`git rm -rq .`), si mettono quelli di questa cartella (`git archive HEAD | tar -x`), poi commit e push con l'account gherybeans-rankwit.
+
+La copia di prova è su https://gherybeans-rankwit.github.io/esercizi-visibility-lab-prova/. Usa lo stesso server e lo stesso spazio del browser del sito vero: non va data ai partecipanti.
 
 ## Provare in locale
 
